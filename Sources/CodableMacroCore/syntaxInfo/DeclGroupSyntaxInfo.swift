@@ -5,17 +5,7 @@
 //
 import SwiftCompilerPlugin
 import SwiftSyntax
-import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
-
-package enum DeclarationKind {
-    case `struct`
-    case `enum`
-    case `class`
-    case `protocol`
-    case `variable`
-    case `extension`
-}
 
 struct DeclGroupSyntaxInfo {
     let name: TokenSyntax

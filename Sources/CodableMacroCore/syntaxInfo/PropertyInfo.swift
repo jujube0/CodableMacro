@@ -55,8 +55,9 @@ struct PropertyInfo {
         }
         
         guard let typeAnnotation = declaration.bindings.first?.typeAnnotation?.type.trimmed else {
-            // let x = 3 형식으로 정의된 경우 nil
-            throw MacroError.message("타입 추론과 함께 사용할 수 없습니다.")
+            // let x = 3,
+            // 또는 let x, y: String 등으로 정의된 경우 nil이 될 수 있음
+            throw MacroError.message("타입을 명확하게 판단할 수 없습니다.")
         }
         
         let initializer = declaration.bindings.first?.initializer?.value
