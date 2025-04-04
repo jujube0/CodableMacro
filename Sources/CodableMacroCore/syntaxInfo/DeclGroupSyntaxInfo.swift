@@ -10,7 +10,7 @@ import SwiftSyntaxMacros
 struct DeclGroupSyntaxInfo {
     let name: TokenSyntax
     let type: DeclarationKind
-    let properties: [PropertyInfo]
+    let properties: [PropertySyntaxInfo]
     let modifiers: DeclModifierListSyntax
     let hasInitializer: Bool
     
@@ -32,7 +32,7 @@ struct DeclGroupSyntaxInfo {
             type: type,
             properties: try syntax.memberBlock.members
                 .compactMap { $0.decl.as(VariableDeclSyntax.self) }
-                .map(PropertyInfo.extract(from:)),
+                .map(PropertySyntaxInfo.extract(from:)),
             modifiers: syntax.modifiers,
             hasInitializer: syntax.memberBlock.members
                 .contains { $0.decl.is(InitializerDeclSyntax.self) }

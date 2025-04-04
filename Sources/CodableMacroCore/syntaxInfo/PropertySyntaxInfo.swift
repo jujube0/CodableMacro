@@ -1,5 +1,5 @@
 //
-//  PropertyInfo.swift
+//  PropertySyntaxInfo.swift
 //  CodableMacro
 //
 //
@@ -30,7 +30,7 @@ enum CustomAttribute: Hashable {
     }
 }
 
-struct PropertyInfo {
+struct PropertySyntaxInfo {
     let name: String
     let type: PropertyType
     let initializer: ExprSyntax? // 변수의 초기값
@@ -49,7 +49,7 @@ struct PropertyInfo {
         }
     }
     
-    static func extract(from declaration: VariableDeclSyntax) throws -> PropertyInfo {
+    static func extract(from declaration: VariableDeclSyntax) throws -> PropertySyntaxInfo {
         guard let name = declaration.bindings.first?.pattern.as(IdentifierPatternSyntax.self)?.identifier.text else {
             throw MacroError.message("변수 이름을 찾을 수 없습니다.")
         }

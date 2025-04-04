@@ -24,7 +24,7 @@ final class PropertyInfoTests {
         let source = "let constantVar: String = \"Hello\""
         let varDecl = try parseVariableDecl(from: source)
         
-        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        let propertyInfo = try PropertySyntaxInfo.extract(from: varDecl)
         
         #expect(propertyInfo.name == "constantVar")
         #expect(propertyInfo.type == .constant)
@@ -40,7 +40,7 @@ final class PropertyInfoTests {
         let source = "var optionalVar: String?"
         let varDecl = try parseVariableDecl(from: source)
         
-        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        let propertyInfo = try PropertySyntaxInfo.extract(from: varDecl)
         
         #expect(propertyInfo.name == "optionalVar")
         #expect(propertyInfo.type == .variable)
@@ -60,7 +60,7 @@ final class PropertyInfoTests {
         """
         let varDecl = try parseVariableDecl(from: source)
         
-        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        let propertyInfo = try PropertySyntaxInfo.extract(from: varDecl)
         
         #expect(propertyInfo.name == "computedVar")
         #expect(propertyInfo.type == .computed)
@@ -80,7 +80,7 @@ final class PropertyInfoTests {
         """
         let varDecl = try parseVariableDecl(from: source)
         
-        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        let propertyInfo = try PropertySyntaxInfo.extract(from: varDecl)
         
         #expect(propertyInfo.name == "computedVar")
         #expect(propertyInfo.type == .computed)
@@ -101,7 +101,7 @@ final class PropertyInfoTests {
         """
         let varDecl = try parseVariableDecl(from: source)
         
-        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        let propertyInfo = try PropertySyntaxInfo.extract(from: varDecl)
         
         #expect(propertyInfo.name == "computedVar")
         #expect(propertyInfo.type == .computed)
@@ -118,7 +118,7 @@ final class PropertyInfoTests {
         """
         let varDecl = try parseVariableDecl(from: source)
         
-        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        let propertyInfo = try PropertySyntaxInfo.extract(from: varDecl)
         
         #expect(propertyInfo.name == "attrVar")
         #expect(propertyInfo.type == .variable)
@@ -139,7 +139,7 @@ final class PropertyInfoTests {
         """
         let varDecl = try parseVariableDecl(from: source)
         
-        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        let propertyInfo = try PropertySyntaxInfo.extract(from: varDecl)
         
         #expect(propertyInfo.name == "attrVar")
         #expect(propertyInfo.type == .variable)
@@ -170,7 +170,7 @@ final class PropertyInfoTests {
         """
         let varDecl = try parseVariableDecl(from: source)
         
-        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        let propertyInfo = try PropertySyntaxInfo.extract(from: varDecl)
         
         #expect(propertyInfo.name == "attrVar")
         #expect(propertyInfo.type == .variable)
@@ -203,7 +203,7 @@ final class PropertyInfoTests {
         let varDecl = try parseVariableDecl(from: source)
         
         #expect(throws: MacroError.self) {
-            _ = try PropertyInfo.extract(from: varDecl)
+            _ = try PropertySyntaxInfo.extract(from: varDecl)
         }
     }
     
@@ -218,7 +218,7 @@ final class PropertyInfoTests {
         """
         let varDecl = try parseVariableDecl(from: source)
         
-        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        let propertyInfo = try PropertySyntaxInfo.extract(from: varDecl)
         
         #expect(propertyInfo.name == "observedVar")
         #expect(propertyInfo.type == .variable)
@@ -235,7 +235,7 @@ final class PropertyInfoTests {
         """
         let varDecl = try parseVariableDecl(from: source)
         
-        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        let propertyInfo = try PropertySyntaxInfo.extract(from: varDecl)
         
         #expect(propertyInfo.name == "staticVar")
         #expect(propertyInfo.type == .static)
@@ -252,7 +252,7 @@ final class PropertyInfoTests {
         """
         let varDecl = try parseVariableDecl(from: source)
         
-        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        let propertyInfo = try PropertySyntaxInfo.extract(from: varDecl)
         
         #expect(propertyInfo.name == "classVar")
         #expect(propertyInfo.type == .static)
@@ -268,7 +268,7 @@ final class PropertyInfoTests {
         let varDecl = try parseVariableDecl(from: source)
         
         #expect(throws: MacroError.self) {
-            try PropertyInfo.extract(from: varDecl)
+            try PropertySyntaxInfo.extract(from: varDecl)
         }
     }
 }

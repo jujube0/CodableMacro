@@ -47,7 +47,7 @@ struct CodableMacro: ValidatedExtensionMacro, ValidatedMemberMacro {
 private extension CodableMacro {
     
     /// - Parameter properties: 저장 프로퍼티
-    static func generateInit(from properties: [PropertyInfo]) throws -> DeclSyntax {
+    static func generateInit(from properties: [PropertySyntaxInfo]) throws -> DeclSyntax {
         let argumentStr = properties.map { p in
             let defaultValueStr = p.initializer.flatMap { " = \($0)" } ?? ""
             return "\(p.name): \(p.dataType)\(defaultValueStr)"
@@ -62,7 +62,7 @@ private extension CodableMacro {
     }
     
     /// - Parameter properties: 저장 프로퍼티
-    static func generateCodingKeys(from properties: [PropertyInfo]) throws -> DeclSyntax {
+    static func generateCodingKeys(from properties: [PropertySyntaxInfo]) throws -> DeclSyntax {
         let decl = try EnumDeclSyntax("enum CodingKeys: String, CodingKey") {
             for p in properties {
                 try MemberBlockItemSyntax(caseName: p.name)
@@ -73,7 +73,7 @@ private extension CodableMacro {
     
     /// - Parameter properties: 저장 프로퍼티
     /// - Parameter required: required keyword를 추가할지
-    static func generateDecodableInit(from properties: [PropertyInfo], required: Bool) throws -> DeclSyntax {
+    static func generateDecodableInit(from properties: [PropertySyntaxInfo], required: Bool) throws -> DeclSyntax {
         let decl = try InitializerDeclSyntax("\(raw: required ? "required " : "")init(from decoder: Decoder) throws") {
             try VariableDeclSyntax("let container = try decoder.container(keyedBy: CodingKeys.self)")
             for p in properties {
@@ -85,7 +85,7 @@ private extension CodableMacro {
     }
     
     /// - Parameter properties: 저장 프로퍼티
-    static func generateEncodeTo(from properties: [PropertyInfo]) throws -> DeclSyntax {
+    static func generateEncodeTo(from properties: [PropertySyntaxInfo]) throws -> DeclSyntax {
         let decl = try FunctionDeclSyntax("func encode(to encoder: Encoder) throws") {
             try VariableDeclSyntax("var container = encoder.container(keyedBy: CodingKeys.self)")
             for p in properties {
