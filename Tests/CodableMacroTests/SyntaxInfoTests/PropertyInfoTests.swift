@@ -127,6 +127,7 @@ final class PropertyInfoTests {
         #expect(propertyInfo.attributes.count == 1)
         #expect(propertyInfo.attributes[0].name == "Localized")
         #expect(!propertyInfo.isOptional)
+        #expect(propertyInfo.customAttributes.isEmpty)
     }
     
     @Test("attributes")
@@ -148,8 +149,8 @@ final class PropertyInfoTests {
         
         #expect(propertyInfo.attributes[0].name == "Localized")
         #expect(propertyInfo.attributes[0].arguments.isEmpty)
-        #expect(propertyInfo.attributes[1].name == "Kitty")
         
+        #expect(propertyInfo.attributes[1].name == "Kitty")
         #expect(propertyInfo.attributes[1].arguments.count == 2)
         #expect(propertyInfo.attributes[1].arguments[0].label == nil)
         #expect(propertyInfo.attributes[1].arguments[0].expression.description == "\"cat\"")
@@ -158,6 +159,40 @@ final class PropertyInfoTests {
         #expect(propertyInfo.attributes[1].arguments[1].expression.description == "\"me\"")
         
         #expect(!propertyInfo.isOptional)
+    }
+    
+    @Test("custom attribute")
+    func customAttribute() async throws {
+        let source = """
+        @Localized
+        @NestedIn("cat", "dog")
+        var attrVar: String
+        """
+        let varDecl = try parseVariableDecl(from: source)
+        
+        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        
+        #expect(propertyInfo.name == "attrVar")
+        #expect(propertyInfo.type == .variable)
+        #expect(propertyInfo.initializer?.description == nil)
+        #expect(propertyInfo.dataType.description == "String")
+        #expect(propertyInfo.attributes.count == 2)
+        
+        #expect(propertyInfo.attributes[0].name == "Localized")
+        #expect(propertyInfo.attributes[0].arguments.isEmpty)
+        
+        #expect(propertyInfo.attributes[1].name == "NestedIn")
+        #expect(propertyInfo.attributes[1].arguments.count == 2)
+        #expect(propertyInfo.attributes[1].arguments[0].label == nil)
+        #expect(propertyInfo.attributes[1].arguments[0].expression.description == "\"cat\"")
+        
+        #expect(propertyInfo.attributes[1].arguments[1].label == nil)
+        #expect(propertyInfo.attributes[1].arguments[1].expression.description == "\"dog\"")
+        
+        #expect(!propertyInfo.isOptional)
+        
+        #expect(propertyInfo.customAttributes.count == 1)
+        #expect(propertyInfo.customAttributes.contains(.nested(["cat", "dog"])))
     }
     
     @Test("type inference")
@@ -189,6 +224,40 @@ final class PropertyInfoTests {
         #expect(propertyInfo.type == .variable)
         #expect(propertyInfo.initializer?.trimmedDescription == "0")
         #expect(propertyInfo.dataType.description == "Int")
+        #expect(propertyInfo.attributes.count == 0)
+        #expect(!propertyInfo.isOptional)
+    }
+    
+    @Test("static")
+    func staticType() throws {
+        let source = """
+        static var staticVar: Int = 0 
+        """
+        let varDecl = try parseVariableDecl(from: source)
+        
+        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        
+        #expect(propertyInfo.name == "staticVar")
+        #expect(propertyInfo.type == .static)
+        #expect(propertyInfo.initializer?.trimmedDescription == "0")
+        #expect(propertyInfo.dataType.description == "Int")
+        #expect(propertyInfo.attributes.count == 0)
+        #expect(!propertyInfo.isOptional)
+    }
+    
+    @Test("class")
+    func classType() throws {
+        let source = """
+        class var classVar: String = "hello" 
+        """
+        let varDecl = try parseVariableDecl(from: source)
+        
+        let propertyInfo = try PropertyInfo.extract(from: varDecl)
+        
+        #expect(propertyInfo.name == "classVar")
+        #expect(propertyInfo.type == .static)
+        #expect(propertyInfo.initializer?.trimmedDescription == "\"hello\"")
+        #expect(propertyInfo.dataType.description == "String")
         #expect(propertyInfo.attributes.count == 0)
         #expect(!propertyInfo.isOptional)
     }

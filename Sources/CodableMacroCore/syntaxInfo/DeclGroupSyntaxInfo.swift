@@ -13,6 +13,7 @@ package enum DeclarationKind {
     case `enum`
     case `class`
     case `protocol`
+    case `variable`
     case `extension`
 }
 

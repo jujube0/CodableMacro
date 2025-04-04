@@ -15,3 +15,7 @@ struct ArgumentSyntaxInfo {
         .init(label: labeledExpr.label?.text, expression: labeledExpr.expression)
     }
 }
+
+extension ExprSyntax {
+    
+}

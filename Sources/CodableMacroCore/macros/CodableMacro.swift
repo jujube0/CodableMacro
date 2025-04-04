@@ -5,14 +5,13 @@
 //
 import SwiftCompilerPlugin
 import SwiftSyntax
-import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
 struct CodableMacro: ValidatedExtensionMacro, ValidatedMemberMacro {
     
-    package static var supportedAttachedKinds: [DeclarationKind] = [.class, .struct]
+    static let supportedAttachedKinds: [DeclarationKind] = [.class, .struct]
     
-    package static func validateAndExpand(
+    static func validateAndExpand(
         of node: SwiftSyntax.AttributeSyntax,
         attachedTo declaration: some SwiftSyntax.DeclGroupSyntax,
         providingExtensionsOf type: some SwiftSyntax.TypeSyntaxProtocol,
@@ -25,7 +24,7 @@ struct CodableMacro: ValidatedExtensionMacro, ValidatedMemberMacro {
     }
     
     // class 인 경우 required init(from:) 을 extension이 아닌, 타입 안에 넣어줘야 한다.
-    package static func validateAndExpand(
+    static func validateAndExpand(
         of node: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,
         in context: some MacroExpansionContext

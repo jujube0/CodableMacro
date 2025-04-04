@@ -1,6 +1,7 @@
 import CodableMacro
 
 struct Person {
+    static let x = "hello"
     let id: Int
     var name: String?
 }

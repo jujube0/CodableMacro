@@ -16,6 +16,7 @@ enum SyntaxValidator {
             case .enum:         return declaration.is(EnumDeclSyntax.self)
             case .class:        return declaration.is(ClassDeclSyntax.self)
             case .protocol:     return declaration.is(ProtocolDeclSyntax.self)
+            case .variable:     return declaration.is(VariableDeclSyntax.self)
             case .extension:    return declaration.is(ExtensionDeclSyntax.self)
             }
         }
