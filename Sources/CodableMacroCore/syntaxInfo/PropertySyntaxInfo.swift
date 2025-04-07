@@ -12,31 +12,13 @@ enum PropertyType {
     case `static` // static 또는 class keyword로 정의된 경우
 }
 
-enum CustomAttribute: Hashable {
-    
-    case nested(_ path: [String])
-    
-    init?(_ syntaxInfo: AttributeSyntaxInfo) throws {
-        
-        switch syntaxInfo.name {
-        case NestedInMacro.attrName:
-            let pathExpr = syntaxInfo.arguments
-                .filter { $0.label == nil }
-            let paths = pathExpr.compactMap { $0.expression.as(StringLiteralExprSyntax.self)?.segments.description }
-            self = .nested(paths)
-        default:
-            return nil
-        }
-    }
-}
-
 struct PropertySyntaxInfo {
     let name: String
     let type: PropertyType
     let initializer: ExprSyntax? // 변수의 초기값
     let dataType: TypeSyntax
     let attributes: [AttributeSyntaxInfo]
-    let customAttributes: Set<CustomAttribute>
+    let customAttributes: CustomAttributes
     
     /// ?를 사용해서 정의됐는지만 체크한다
     var isOptional: Bool { dataType.is(OptionalTypeSyntax.self) }
@@ -89,19 +71,97 @@ struct PropertySyntaxInfo {
             return AttributeSyntaxInfo.extract(from: attribute)
         }
         
-        let customAttributes: Set<CustomAttribute> = Set(try attributes.compactMap({ try CustomAttribute($0) }))
-        
         return .init(
             name: name,
             type: type,
             initializer: initializer,
             dataType: typeAnnotation,
             attributes: attributes,
-            customAttributes: customAttributes
+            customAttributes: CustomAttributes.extract(from: attributes)
         )
     }
     
-//    func codingKeys() -> MemberBlockItemListSyntax {
-//        
-//    }
+    func codingKeys(_ usedKeys: inout Set<String>) throws -> MemberBlockItemListSyntax {
+        var newKeys: [String] = []
+        
+        if !usedKeys.contains(name) {
+            usedKeys.insert(name)
+            newKeys.append(name)
+        }
+        
+        customAttributes.codingPaths.forEach { path in
+            if !usedKeys.contains(path) {
+                usedKeys.insert(path)
+                newKeys.append(path)
+            }
+        }
+        
+        return try MemberBlockItemListSyntax {
+            for key in newKeys {
+                try MemberBlockItemSyntax(caseName: key)
+            }
+        }
+    }
+    
+    func decodeBlock(_ usedKeys: inout Set<String>) throws -> CodeBlockItemListSyntax {
+        let decodeExpr = isOptional ? "decodeIfPresent" : "decode"
+        
+        guard !customAttributes.codingPaths.isEmpty else {
+            return CodeBlockItemListSyntax {
+                ExprSyntax("self.\(raw: name) = try container.\(raw: decodeExpr)(\(raw: wrappedDataType).self, forKey: .\(raw: name))")
+            }
+        }
+        
+        let (finalContainerName, expressions) = try customAttributes.codingPaths.reduce(
+            ("container", expressions: [VariableDeclSyntax]())
+        ) { result, codingPath in
+            var (currentContainer, currentExpressions) = result
+            let newContainerName = codingPath + "_" + currentContainer
+            
+            guard !usedKeys.contains(codingPath) else {
+                return (newContainerName, currentExpressions)
+            }
+            usedKeys.insert(codingPath)
+            
+            let optionalWrapping = currentContainer == "container" ? "" : "?"
+            let expr = try VariableDeclSyntax("let \(raw: newContainerName) = try? \(raw: currentContainer)\(raw: optionalWrapping).nestedContainer(keyedBy: CodingKeys.self, forKey: .\(raw: codingPath))")
+            currentExpressions.append(expr)
+            return (newContainerName, currentExpressions)
+        }
+        
+        return try CodeBlockItemListSyntax {
+            expressions
+            if isOptional {
+                ExprSyntax("self.\(raw: name) = try \(raw: finalContainerName)?.\(raw: decodeExpr)(\(raw: wrappedDataType).self, forKey: .\(raw: name))")
+            } else {
+                try IfExprSyntax("if let \(raw: finalContainerName)") {
+                    ExprSyntax("self.\(raw: name) = try \(raw: finalContainerName).\(raw: decodeExpr)(\(raw: wrappedDataType).self, forKey: .\(raw: name))")
+                } else: {
+                    try VariableDeclSyntax("let context = DecodingError.Context(codingPath: [\(raw: customAttributes.codingPaths.map({ "CodingKeys.\($0)" }).joined(separator: ", "))], debugDescription: \"key not found\")")
+                    ThrowStmtSyntax(expression: ExprSyntax("DecodingError.keyNotFound(CodingKeys.\(raw: name), context)"))
+                }
+            }
+        }
+    }
+}
+
+struct CustomAttributes {
+    var codingPaths: [String] = [] // NestedIn(_ path: )
+    
+    static func extract(from attributes: [AttributeSyntaxInfo]) -> Self {
+        var result = CustomAttributes()
+        
+        for attr in attributes {
+            switch attr.name {
+            case NestedInMacro.name:
+                let paths = attr.arguments.filter { $0.label == nil }
+                    .compactMap { $0.expression.asSimpleString }
+                result.codingPaths = paths
+            default:
+                continue
+            }
+        }
+        
+        return result
+    }
 }

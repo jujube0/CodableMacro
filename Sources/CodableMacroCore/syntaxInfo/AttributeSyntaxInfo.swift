@@ -24,5 +24,3 @@ struct AttributeSyntaxInfo {
         return .init(name: name, arguments: arguments)
     }
 }
-
-

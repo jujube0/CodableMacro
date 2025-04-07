@@ -7,7 +7,8 @@ import XCTest
 @testable import CodableMacroCore
 
 let testMacros: [String: Macro.Type] = [
-    "Codable": CodableMacro.self
+    "Codable": CodableMacro.self,
+    "NestedIn": NestedInMacro.self
 ]
 
 final class CodableMacroTests: XCTestCase {

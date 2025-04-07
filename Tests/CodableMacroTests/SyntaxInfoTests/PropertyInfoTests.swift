@@ -6,7 +6,6 @@
 import Testing
 import SwiftSyntax
 import SwiftParser
-import SwiftSyntaxBuilder
 
 @testable import CodableMacroCore
 
@@ -127,7 +126,7 @@ final class PropertyInfoTests {
         #expect(propertyInfo.attributes.count == 1)
         #expect(propertyInfo.attributes[0].name == "Localized")
         #expect(!propertyInfo.isOptional)
-        #expect(propertyInfo.customAttributes.isEmpty)
+        #expect(propertyInfo.customAttributes.codingPaths.isEmpty)
     }
     
     @Test("attributes")
@@ -191,8 +190,7 @@ final class PropertyInfoTests {
         
         #expect(!propertyInfo.isOptional)
         
-        #expect(propertyInfo.customAttributes.count == 1)
-        #expect(propertyInfo.customAttributes.contains(.nested(["cat", "dog"])))
+        #expect(propertyInfo.customAttributes.codingPaths == ["cat", "dog"])
     }
     
     @Test("type inference")

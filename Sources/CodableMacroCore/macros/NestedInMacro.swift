@@ -9,7 +9,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 struct NestedInMacro: ValidatedPeerMacro {
-    static let attrName = "NestedIn"
+    static let name = "NestedIn"
     static let supportedAttachedKinds: [DeclarationKind] = [.variable]
     
     static func validateAndExpand(

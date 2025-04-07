@@ -5,3 +5,4 @@ public macro Codable() = #externalMacro(module: "CodableMacroCore", type: "Codab
 
 @attached(peer)
 public macro NestedIn(_ path: String...) = #externalMacro(module: "CodableMacroCore", type: "NestedInMacro")
+

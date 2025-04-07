@@ -63,9 +63,11 @@ private extension CodableMacro {
     
     /// - Parameter properties: 저장 프로퍼티
     static func generateCodingKeys(from properties: [PropertySyntaxInfo]) throws -> DeclSyntax {
+        var usedKeys: Set<String> = []
+        
         let decl = try EnumDeclSyntax("enum CodingKeys: String, CodingKey") {
             for p in properties {
-                try MemberBlockItemSyntax(caseName: p.name)
+                try p.codingKeys(&usedKeys)
             }
         }
         return DeclSyntax(decl)
@@ -74,11 +76,11 @@ private extension CodableMacro {
     /// - Parameter properties: 저장 프로퍼티
     /// - Parameter required: required keyword를 추가할지
     static func generateDecodableInit(from properties: [PropertySyntaxInfo], required: Bool) throws -> DeclSyntax {
+        var usedKeys: Set<String> = []
         let decl = try InitializerDeclSyntax("\(raw: required ? "required " : "")init(from decoder: Decoder) throws") {
             try VariableDeclSyntax("let container = try decoder.container(keyedBy: CodingKeys.self)")
             for p in properties {
-                let decodeExpr = p.isOptional ? "decodeIfPresent" : "decode"
-                ExprSyntax("self.\(raw: p.name) = try container.\(raw: decodeExpr)(\(raw: p.wrappedDataType).self, forKey: .\(raw: p.name))")
+                try p.decodeBlock(&usedKeys)
             }
         }
         return DeclSyntax(decl)

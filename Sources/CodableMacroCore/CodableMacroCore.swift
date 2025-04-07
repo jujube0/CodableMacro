@@ -15,5 +15,6 @@ import SwiftSyntaxMacros // 매크로 작성에 필요한 프로토콜과 타입
 struct CodableMacroPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         CodableMacro.self,
+        NestedInMacro.self
     ]
 }
