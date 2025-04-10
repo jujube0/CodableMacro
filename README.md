@@ -1,4 +1,6 @@
 # CodableMacro
+- [Custom Codable Macro #1 세팅](https://velog.io/@jujube0/Custom-Codable-Macro-1-세팅)
+- [Custom Codable Macro #2 구현하기](https://velog.io/@jujube0/Custom-Codable-Macro-2-구현하기)
 
 ## requirements
 iOS 15+/swift6.0
