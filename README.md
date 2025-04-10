@@ -13,7 +13,7 @@ iOS 15+/swift6.0
 ```swift
 @Codable
 struct Person {
-	var name: String? 
+    var name: String? 
     let age: Int
 }
 ```
@@ -87,6 +87,9 @@ struct Person {
 extension Person: Codable {
 }
 ```
-
 </details>
+
+#### constraints
+- `@Codable` 이 타입에 추가되어야 한다.
+- `var` 이면서 `String?` 인 변수로 정의돼야 한다.
 
