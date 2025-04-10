@@ -21,7 +21,7 @@ struct Person {
 ### @NestedIn(_ path: String...)
 - nested 구조를 한번에 처리한다.
 - 아래처럼 사용할 수 있다.
-```
+```swift
 @Codable
 struct Person {
     let name: String
