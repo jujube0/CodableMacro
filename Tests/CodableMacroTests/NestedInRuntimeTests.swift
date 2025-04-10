@@ -49,6 +49,14 @@ struct NestedInTests {
         #expect(person.address == "서울시 강남구 테헤란로")
         #expect(person.gender == "남성")
         #expect(person.food == "banana")
+        
+        let encoded = try JSONEncoder().encode(person)
+        let reDecoded = try JSONDecoder().decode(SimpleStruct.self, from: encoded)
+        #expect(reDecoded.id == person.id)
+        #expect(reDecoded.name == person.name)
+        #expect(reDecoded.address == person.address)
+        #expect(reDecoded.gender == person.gender)
+        #expect(reDecoded.food == person.food)
     }
     
     @Test("optional이면서 container key가 존재하지 않는 경우 nil로 처리")

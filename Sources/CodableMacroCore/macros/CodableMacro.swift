@@ -35,12 +35,11 @@ struct CodableMacro: ValidatedExtensionMacro, ValidatedMemberMacro {
         guard !storedProperties.isEmpty else { return [] }
         
         return [
-            // struct인 경우는 init이 자동으로 생성됨
-            declInfo.isClass ? try generateInit(from: storedProperties) : nil,
+            try generateInit(from: storedProperties),
             try generateCodingKeys(from: storedProperties),
             try generateDecodableInit(from: storedProperties, required: declInfo.isClass),
             try generateEncodeTo(from: storedProperties)
-        ].compactMap { $0 }
+        ]
     }
 }
 
@@ -88,11 +87,11 @@ private extension CodableMacro {
     
     /// - Parameter properties: 저장 프로퍼티
     static func generateEncodeTo(from properties: [PropertySyntaxInfo]) throws -> DeclSyntax {
+        var usedKeys: Set<String> = []
         let decl = try FunctionDeclSyntax("func encode(to encoder: Encoder) throws") {
             try VariableDeclSyntax("var container = encoder.container(keyedBy: CodingKeys.self)")
             for p in properties {
-                let encodeExpr = p.isOptional ? "encodeIfPresent" : "encode"
-                ExprSyntax("try container.\(raw: encodeExpr)(\(raw: p.name), forKey: .\(raw: p.name))")
+                try p.encodeBlock(&usedKeys)
             }
         }
         return DeclSyntax(decl)

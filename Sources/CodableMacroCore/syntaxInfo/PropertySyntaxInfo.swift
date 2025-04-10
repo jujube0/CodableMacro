@@ -103,6 +103,7 @@ struct PropertySyntaxInfo {
         }
     }
     
+    /// - Parameter usedKeys: 동일한 컨테이너를 중복해서 정의하지 않기 위해 다른 곳에서 이미 사용된 키들을 전달받음
     func decodeBlock(_ usedKeys: inout Set<String>) throws -> CodeBlockItemListSyntax {
         let decodeExpr = isOptional ? "decodeIfPresent" : "decode"
         
@@ -141,6 +142,38 @@ struct PropertySyntaxInfo {
                     ThrowStmtSyntax(expression: ExprSyntax("DecodingError.keyNotFound(CodingKeys.\(raw: name), context)"))
                 }
             }
+        }
+    }
+    
+    /// - Parameter usedKeys: 동일한 컨테이너를 중복해서 정의하지 않기 위해 다른 곳에서 이미 사용된 키들을 전달받음
+    func encodeBlock(_ usedKeys: inout Set<String>) throws -> CodeBlockItemListSyntax {
+        let encodeExpr = isOptional ? "encodeIfPresent" : "encode"
+        
+        guard !customAttributes.codingPaths.isEmpty else {
+            return CodeBlockItemListSyntax {
+                ExprSyntax("try container.\(raw: encodeExpr)(self.\(raw: name), forKey: .\(raw: name))")
+            }
+        }
+        
+        let (finalContainerName, expressions) = try customAttributes.codingPaths.reduce(
+            ("container", expressions: [VariableDeclSyntax]())
+        ) { result, codingPath in
+            var (currentContainer, currentExpressions) = result
+            let newContainerName = codingPath + "_" + currentContainer
+            
+            guard !usedKeys.contains(codingPath) else {
+                return (newContainerName, currentExpressions)
+            }
+            usedKeys.insert(codingPath)
+            
+            let expr = try VariableDeclSyntax("var \(raw: newContainerName) = \(raw: currentContainer).nestedContainer(keyedBy: CodingKeys.self, forKey: .\(raw: codingPath))")
+            currentExpressions.append(expr)
+            return (newContainerName, currentExpressions)
+        }
+        
+        return CodeBlockItemListSyntax {
+            expressions
+            ExprSyntax("try \(raw: finalContainerName).\(raw: encodeExpr)(\(raw: name), forKey: .\(raw: name))")
         }
     }
 }
