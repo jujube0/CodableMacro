@@ -27,7 +27,7 @@ struct Person {
     let name: String
     @NestedIn("privacy")
     var address: String
-	@NestedIn("privacy")
+    @NestedIn("privacy")
     let gender: String
 }
 
